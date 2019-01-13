@@ -34,7 +34,7 @@ getUrl().then((data) => {
         content.each((i, elem) => {
             let title = $(elem).find('tr th'), price
             price = $(elem).find('tr')
-            let fullData = handle(title ,price)
+            let fullData = handle(title ,price, modelText[i])
             fullData.headText = modelText[i]
             result.push(fullData)
         })
@@ -42,11 +42,11 @@ getUrl().then((data) => {
     })
 })
 
-function handle(title ,price) {
-    let titleArr = [], detail = []
+function handle(title ,price, modelText) {
+    let titleArr = [], detail = [], country = modelText.indexOf('国行')>-1?1:2 //国行1 港行2
     title.each((i, elem) => {
         let $ = cheerio.load(elem)
-        titleArr.push($(elem).text())
+        titleArr.push($(elem).text()) //[黑,白,金,粉]
     })
     price.each((i, elem) => {
         if(i==0){return}
@@ -63,7 +63,7 @@ function handle(title ,price) {
             }
             if($(td).attr('class') == 'price-cell') {
                 price.push({
-                    color: title[i+1],
+                    color: titleArr[i],
                     num: $(td).text()
                 })
                 chartsUrl = $(td).find('a').attr('href')
@@ -71,7 +71,7 @@ function handle(title ,price) {
             }
         })
         detail.push(JSON.stringify({
-            chartsUrl,price,name,time
+            chartsUrl,price,name,time,country
         }))
     })
     return {detail}

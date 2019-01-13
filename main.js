@@ -28,7 +28,6 @@ const getHtml = (path) => {
 
 getUrl().then((data) => {
     getHtml(data.path).then(html => {
-<<<<<<< HEAD
         let $ = cheerio.load(html), modelText = []
         $('.product-series-heading strong').each((i, title) => {modelText.push($(title).text())})
         let content = $('.price-report tbody'), result = []
@@ -74,13 +73,6 @@ function handle(title ,price) {
         detail.push(JSON.stringify({
             chartsUrl,price,name,time
         }))
-=======
-        let $ = cheerio.load(html)
-        let title = $('.product-series-heading strong').html()
-        let content = $('.price-report tbody')
-        // console.log(title.length, content.length)
-        console.log(title)
->>>>>>> update
     })
     return {detail}
 }

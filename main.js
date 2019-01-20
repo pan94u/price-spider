@@ -2,8 +2,8 @@ import cheerio from 'cheerio'
 import { getPath, indexUrl } from './api/appletuan'
 import { isEmptyObject, requestUrl } from './utils/tools'
 
-
-
+let result = []
+//获取最新报价链接
 const getUrl = () => {
     return new Promise((resolve, reject) => {
         getPath().then(res => {
@@ -16,6 +16,7 @@ const getUrl = () => {
     })
 }
 
+//获取报价HTML
 const getHtml = (path) => {
     return new Promise((resolve, reject) => {
         requestUrl(indexUrl + path).then(res => {
@@ -26,11 +27,13 @@ const getHtml = (path) => {
     })
 }
 
-getUrl().then((data) => {
+//获取报价数据
+function getPriceData() {
+  getUrl().then((data) => {
     getHtml(data.path).then(html => {
         let $ = cheerio.load(html), modelText = []
         $('.product-series-heading strong').each((i, title) => {modelText.push($(title).text())})
-        let content = $('.price-report tbody'), result = []
+        let content = $('.price-report tbody')
         content.each((i, elem) => {
             let title = $(elem).find('tr th'), price
             price = $(elem).find('tr')
@@ -40,8 +43,11 @@ getUrl().then((data) => {
         })
         console.log(result)
     })
-})
+  })
+}
 
+
+//格式化报价
 function handle(title ,price, modelText) {
     let titleArr = [], detail = [], country = modelText.indexOf('国行')>-1?1:2 //国行1 港行2
     title.each((i, elem) => {
@@ -76,3 +82,5 @@ function handle(title ,price, modelText) {
     })
     return {detail}
 }
+
+getPriceData()

@@ -1,7 +1,7 @@
 import {defineModel} from '../lib/sequelize'
 import Sequelize from 'sequelize'
 
-export const group = defineModel('sp_group', {
-    groupId: Sequelize.INTEGER,
-    name: Sequelize.STRING
+export const groupDB = defineModel('sp_group', {
+    name: Sequelize.STRING,
+    originText: Sequelize.STRING //分组识别文字
 });

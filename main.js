@@ -2,8 +2,8 @@ import cheerio from 'cheerio'
 import { getPath, indexUrl } from './api/appletuan'
 import { isEmptyObject, requestUrl } from './utils/tools'
 
-let result = []
-//获取最新报价链接
+let timer = null
+//获取当日报价的url和text
 const getUrl = () => {
     return new Promise((resolve, reject) => {
         getPath().then(res => {
@@ -11,12 +11,13 @@ const getUrl = () => {
             let path, dateText
             path = $('#main-nav-price-report').attr('href')
             dateText = $('#main-nav-price-report').text()
+            console.log(path)
             resolve({ path, dateText })
         })
     })
 }
 
-//获取报价HTML
+//获取html代码
 const getHtml = (path) => {
     return new Promise((resolve, reject) => {
         requestUrl(indexUrl + path).then(res => {
@@ -26,38 +27,43 @@ const getHtml = (path) => {
         })
     })
 }
-
-//获取报价数据
-function getPriceData() {
-  getUrl().then((data) => {
-    getHtml(data.path).then(html => {
-        let $ = cheerio.load(html), modelText = []
-        $('.product-series-heading strong').each((i, title) => {modelText.push($(title).text())})
-        let content = $('.price-report tbody')
-        content.each((i, elem) => {
-            let title = $(elem).find('tr th'), price
-            price = $(elem).find('tr')
-            let fullData = handle(title ,price, modelText[i])
-            fullData.headText = modelText[i]
-            result.push(fullData)
+//循环HTML 得出数据
+export function loopData() {
+    let stime = new Date()
+    console.log(`开始获取...`)
+    return new Promise((resolve, reject) => {
+        getUrl().then((data) => {
+            console.log(`链接获取成功，总共花费了${new Date() - stime} ms`)
+            getHtml(data.path).then(html => {
+                console.log(`HTML获取成功，总共花费了${new Date() - stime} ms`)
+                let $ = cheerio.load(html), modelText = []
+                $('.product-series-heading strong').each((i, title) => {modelText.push($(title).text())})
+                let content = $('.price-report tbody'), result = []
+                content.each((i, elem) => {
+                    let title = $(elem).find('tr th'), price
+                    price = $(elem).find('tr')
+                    let fullData = handle(title ,price)
+                    fullData.headText = modelText[i]
+                    result.push(fullData)
+                })
+                console.log(`数据全部获取完成，总共花费了${new Date() - stime} ms`)
+                resolve(result)
+            })
         })
-        console.log(result)
     })
-  })
 }
 
-
-//格式化报价
-function handle(title ,price, modelText) {
-    let titleArr = [], detail = [], country = modelText.indexOf('国行')>-1?1:2 //国行1 港行2
+//格式化跑出的数据(每个表格)
+function handle(title ,price) {
+    let titleArr = [], detail = []
     title.each((i, elem) => {
         let $ = cheerio.load(elem)
-        titleArr.push($(elem).text()) //[黑,白,金,粉]
+        titleArr.push($(elem).text())
     })
     price.each((i, elem) => {
         if(i==0){return}
         let $ = cheerio.load(elem), tempArr = []
-        let chartsUrl, price=[], name, time
+        let chartsUrl, priceArr=[], name, time
         $(elem).find('td').each((i, td) => {
             if($(td).attr('class') == 'model-name') {
                 name = $(td).text()
@@ -68,19 +74,20 @@ function handle(title ,price, modelText) {
                 return
             }
             if($(td).attr('class') == 'price-cell') {
-                price.push({
-                    color: titleArr[i],
+                priceArr.push({
+                    color: $(title[i]).text(),
                     num: $(td).text()
                 })
                 chartsUrl = $(td).find('a').attr('href')
                 return
             }
         })
-        detail.push(JSON.stringify({
-            chartsUrl,price,name,time,country
-        }))
+        // detail.push(JSON.stringify({
+        //     chartsUrl,priceArr,name,time
+        // }))
+        detail.push({
+            chartsUrl,priceArr,name,time
+        })
     })
     return {detail}
 }
-
-getPriceData()

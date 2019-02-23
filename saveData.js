@@ -2,9 +2,13 @@ import {priceDB} from './model/price'
 import {modelDB} from './model/model'
 import {groupDB} from './model/group'
 import {loopData} from './main'
-// priceDB.sync({false:true})
-// modelDB.sync({false:true})
-// groupDB.sync({false:true})
+//同步一下库
+(async () => {
+  await priceDB.sync({false:true})
+  await modelDB.sync({false:true})
+  await groupDB.sync({false:true})
+})()
+
 
 loopData().then((result) => {
   //遍历全部分组

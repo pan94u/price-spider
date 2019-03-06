@@ -62,15 +62,15 @@ loopData().then((result) => {
               modelDB.create({originText,country,color,name,chartsUrl,groupId}).then((result) => {
                 modelId = result.id
                 //将旧报价停用
-                priceDB.update({status: 1},{where: {status: 0}}).then((result) => {
-                  priceDB.create({price,modelId,groupId,country})
+                priceDB.update({status: 1},{where: {modelId,groupId,country,status: 0}}).then((result) => {
+                  priceDB.create({price,modelId,groupId,country,status:0})
                 })
               })
             } else{
               modelId = result[0].id
               //将旧报价停用
-              priceDB.update({status: 1},{where: {status: 0}}).then((result) => {
-                priceDB.create({price,modelId,groupId,country})
+              priceDB.update({status: 1},{where: {modelId,groupId,country,status: 0}}).then((result) => {
+                priceDB.create({price,modelId,groupId,country,status:0})
               })
             }
           })

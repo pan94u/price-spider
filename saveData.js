@@ -4,9 +4,9 @@ import {groupDB} from './model/group'
 import {loopData} from './main'
 //同步一下库
 (async () => {
-  await priceDB.sync({false:true})
-  await modelDB.sync({false:true})
-  await groupDB.sync({false:true})
+  await priceDB.sync({force:true})
+  await modelDB.sync({force:true})
+  await groupDB.sync({force:true})
 })()
 
 

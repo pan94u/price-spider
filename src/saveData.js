@@ -4,12 +4,14 @@ import {groupDB} from './model/group'
 import {loopData} from './main'
 //定时任务
 const schedule = require('node-schedule');
+//时间处理
+const moment = require('moment');
 //同步一下库
-(async () => {
-  await priceDB.sync({force:true})
-  await modelDB.sync({force:true})
-  await groupDB.sync({force:true})
-})()
+// (async () => {
+//   await priceDB.sync({force:true})
+//   await modelDB.sync({force:true})
+//   await groupDB.sync({force:true})
+// })()
 
 function start() {
   loopData().then((result) => {
@@ -66,18 +68,36 @@ function start() {
                 modelId;
             modelDB.findAll({where:{originText,country,color}}).then((result) => {
               if(isEmptyArr(result)) {
+                //如果没有这个型号则新建
                 modelDB.create({originText,country,color,name,chartsUrl,groupId,status: 0}).then((result) => {
                   modelId = result.id
-                  //将旧报价停用
-                  priceDB.update({status: 1},{where: {modelId,groupId,country,status: 0}}).then((result) => {
-                    priceDB.create({price,modelId,groupId,country,status:0})
-                  })
+                  priceDB.create({price,modelId,groupId,country,status:0})
                 })
               } else{
+                //如果有这个型号则赋值
                 modelId = result[0].id
-                //将旧报价停用
-                priceDB.update({status: 1},{where: {modelId,groupId,country,status: 0}}).then((result) => {
-                  priceDB.create({price,modelId,groupId,country,status:0})
+                 //查询该报价并比对价格和时间，若价格相等并在同一天，则不操作
+                 priceDB.findAll({where:{modelId,groupId,country,status: 0}}).then((result) => {
+                  if(isEmptyArr(result)){
+                    priceDB.create({price,modelId,groupId,country,status:0}).then((result)=>{
+                      
+                    })
+                    return
+                  }
+                  if(price == result[0].price && moment(parseInt(result[0].updateAt)).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
+                    //报价没更新
+                    console.log('价格没更新呢..')
+                  } else if(price != result[0].price && moment(parseInt(result[0].updateAt)).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
+                    //若价格不相等但还是当天
+                    priceDB.update({price},{where: {modelId,groupId,country,status: 0}})
+                  } else {
+                    //跨天了
+                    //将旧报价停用
+                    priceDB.update({status: 1},{where: {modelId,groupId,country,status: 0}}).then((result) => {
+                      //创建新一天的报价
+                      priceDB.create({price,modelId,groupId,country,status:0})
+                    })
+                  }
                 })
               }
             })
@@ -89,10 +109,9 @@ function start() {
     
   })  
 }
-
 const  scheduleCronstyle = ()=>{
-  //每分钟的第30秒定时执行一次:
-    schedule.scheduleJob('10 * * * * *',()=>{
+  //每60秒定时执行一次:
+    schedule.scheduleJob({second:60},()=>{
       start()
     }); 
 }

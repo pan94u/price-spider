@@ -14,7 +14,8 @@ let seq = new Sequelize(DBConfig.database, DBConfig.username, DBConfig.password,
     max: 50,
     min: 0,
     idle: 10000
-  }
+  },
+  logging: false
 })
 
 

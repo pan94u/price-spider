@@ -14,6 +14,7 @@ const moment = require('moment');
 // })()
 
 function start() {
+  console.log(`开始写入数据库 in ${moment()}`)
   loopData().then((result) => {
     //遍历全部分组
     result.forEach((group, index) => {
@@ -86,7 +87,6 @@ function start() {
                   }
                   if(price == result[0].price && moment(parseInt(result[0].updateAt)).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
                     //报价没更新
-                    console.log('价格没更新呢..')
                   } else if(price != result[0].price && moment(parseInt(result[0].updateAt)).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
                     //若价格不相等但还是当天
                     priceDB.update({price},{where: {modelId,groupId,country,status: 0}})
@@ -111,9 +111,11 @@ function start() {
 }
 const  scheduleCronstyle = ()=>{
   //每60秒定时执行一次:
-    schedule.scheduleJob({second:60},()=>{
-      start()
-    }); 
+  let rule = new schedule.RecurrenceRule()
+  rule.second = 10
+  schedule.scheduleJob(rule,()=>{
+    start()
+  }); 
 }
 scheduleCronstyle()
 

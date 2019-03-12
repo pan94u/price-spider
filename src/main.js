@@ -1,6 +1,8 @@
 import cheerio from 'cheerio'
 import { getPath, indexUrl } from './api/appletuan'
 import { isEmptyObject, requestUrl } from './utils/tools'
+//时间处理
+const moment = require('moment');
 
 let timer = null
 //获取当日报价的url和text
@@ -11,7 +13,6 @@ const getUrl = () => {
             let path, dateText
             path = $('#main-nav-price-report').attr('href')
             dateText = $('#main-nav-price-report').text()
-            console.log(path)
             resolve({ path, dateText })
         })
     })

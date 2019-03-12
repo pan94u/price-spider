@@ -90,6 +90,7 @@ function start() {
                   } else if(price != result[0].price && moment(parseInt(result[0].updateAt)).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
                     //若价格不相等但还是当天
                     priceDB.update({price},{where: {modelId,groupId,country,status: 0}})
+                    console.log(`当天更新${modelId}in ${moment().format('YYYY-MM-DD HH:mm:ss')}`)
                   } else {
                     //跨天了
                     //将旧报价停用

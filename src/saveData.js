@@ -14,7 +14,7 @@ const moment = require('moment');
 // })()
 
 function start() {
-  console.log(`开始写入数据库 in ${moment()}`)
+  console.log(`开始写入数据库 in ${moment().format('YYYY-MM-DD HH:mm:ss')}`)
   loopData().then((result) => {
     //遍历全部分组
     result.forEach((group, index) => {

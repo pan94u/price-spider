@@ -13,6 +13,7 @@ const moment = require('moment');
 //   await groupDB.sync({force:true})
 // })()
 
+
 function start() {
   console.log(`开始写入数据库 in ${moment().format('YYYY-MM-DD HH:mm:ss')}`)
   loopData().then((result) => {
@@ -67,7 +68,7 @@ function start() {
             let color = value.color,
                 price = value.num,
                 modelId;
-            modelDB.findAll({where:{originText,country,color}}).then((result) => {
+            modelDB.findAll({where:{originText,country,color,groupId}}).then((result) => {
               if(isEmptyArr(result)) {
                 //如果没有这个型号则新建
                 modelDB.create({originText,country,color,name,chartsUrl,groupId,status: 0}).then((result) => {

@@ -7,3 +7,7 @@ export const priceDB = defineModel('sp_price', {
     groupId: Sequelize.INTEGER,
     country: Sequelize.INTEGER,
 });
+
+export const originDB = defineModel('sp_origin_data', {
+  data: Sequelize.TEXT,
+});

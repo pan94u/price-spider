@@ -34,7 +34,7 @@ export function loopData() {
     console.log(`开始获取...`)
     return new Promise((resolve, reject) => {
         getUrl().then((data) => {
-            console.log(`链接获取成功，总共花费了${new Date() - stime} ms`)
+            console.log(`链接获取成功，总共花费了${new Date() - stime} ms/n链接信息：${JSON.stringify(data)}`)
             getHtml(data.path).then(html => {
                 console.log(`HTML获取成功，总共花费了${new Date() - stime} ms`)
                 let $ = cheerio.load(html), modelText = []
